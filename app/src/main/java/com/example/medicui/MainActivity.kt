@@ -1,6 +1,11 @@
 package com.example.medicui
 
+import android.graphics.Color
 import android.os.Bundle
+import android.view.Gravity
+import android.widget.LinearLayout
+import android.widget.PopupWindow
+import android.widget.TextView
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.layout.Arrangement
@@ -21,6 +26,12 @@ import java.time.Instant
 import java.time.Duration
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.layout.*
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.outlined.Info
+import androidx.compose.ui.window.*
+
 
 // val channel = NotificationChannel(
 //     "channel_id",
@@ -37,6 +48,7 @@ import java.time.format.DateTimeFormatter
 var rows = mutableListOf<MutableMap<String, String>>()
 
 var rows1 = mutableListOf<MutableMap<String, String>>()
+var jsonObject1 = JSONObject()
 
 //create 
 
@@ -68,7 +80,7 @@ class MainActivity : ComponentActivity() {
         // For example, using org.json
         val jsonObject = JSONObject(json)
 
-        val jsonObject1 = JSONObject(json1)
+        jsonObject1 = JSONObject(json1)
 
         //iterate over the JSON object and get the values
         val medications = jsonObject.getJSONArray("medication")
@@ -101,7 +113,8 @@ class MainActivity : ComponentActivity() {
                 rows.add(row)
             }       
         }
-
+        //sort rows by time
+        rows.sortBy { it["time"] }
 
         //iterate over the JSON object and get the values
         val medications_info = jsonObject1.getJSONArray("medication_info")
@@ -184,60 +197,120 @@ class MainActivity : ComponentActivity() {
 }
 @Composable
 fun MedApp() {
-    var expanded by remember { mutableStateOf(false) }
-    Column(
+    LazyColumn(
         modifier = Modifier
-            .fillMaxSize()
-            .verticalScroll(rememberScrollState())
-            .padding(16.dp),
-        verticalArrangement = Arrangement.Center,
-        horizontalAlignment = Alignment.CenterHorizontally
+            .fillMaxWidth()
+            .fillMaxHeight()
     ) {
-        Text(text = "Medications", style = MaterialTheme.typography.h5)
-        Text(text = "Today", style = MaterialTheme.typography.h6)
-        for (row in rows) {
-            //format time from the ISO 8601 format string to a human readable format
-            val iso_time_string = row["time"]!!
-            //parse my_string to a YYYY-MM-DD HH:MM format
-            //split the string to get the date and time
-            val split = iso_time_string.split("T")
-            //split the date to get the year, month and day
-            val date = split[0]
-            //remove the last 4 characters from split[1]
-            var hours = split[1].substring(0, split[1].length - 4)
-            
-            MedCard(
-                name = row["name"]!!,
-                dosage = row["dosage"]!!,
-                time = date + " " + hours,
-
-                expanded = expanded
+        // Create a header composable for each date group
+        @Composable
+        fun DateHeader(date: String) {
+            Text(
+                text = date,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(16.dp),
+                style = MaterialTheme.typography.h6
             )
         }
-        Button(onClick = { expanded = !expanded }) {
-            Text("Toggle")
-        }
-    }
-}
 
-@Composable
-fun MedCard(name: String, dosage: String, time: String, expanded: Boolean) {
-    Card(
-        modifier = Modifier.padding(4.dp),
-        elevation = 4.dp
-    ) {
-        Column(
-            modifier = Modifier.padding(8.dp)
-        ) {
-            Text(text = name, style = MaterialTheme.typography.h6)
-            Text(text = dosage, style = MaterialTheme.typography.body2)
-            Text(text = time, style = MaterialTheme.typography.body2)
-            if (expanded) {
-                Text(text = "Expanded", style = MaterialTheme.typography.body2)
+        // Create a list of medication items grouped by date
+        val groupedRows = rows.groupBy { it["time"]?.substringBefore("T") }
+
+        groupedRows.forEach { (date, rowsByDate) ->
+            // Add the header composable as the first item for each date group
+            item {
+                DateHeader(date!!)
+            }
+            // Create a row for each medication item in the date group
+            items(rowsByDate.size) { index ->
+                val row = rowsByDate[index]
+                val name = row["name"]
+                val dosage = row["dosage"]
+                val iso_time_string = row["time"]!!
+                val split = iso_time_string.split("T")
+                var hours = split[1].substring(0, split[1].length - 4)
+                val formattedDateTime =  hours
+
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 16.dp, vertical = 8.dp),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    var isChecked by remember { mutableStateOf(false) }
+                    Checkbox(
+                        checked = false,
+                        onCheckedChange = { isChecked = it },
+                        modifier = Modifier
+                            .padding(end = 16.dp)
+                            .size(24.dp)
+                    )
+                    //make the name and dosage in the same column
+                    Column(
+                        modifier = Modifier
+                            .weight(1f)
+                            .padding(start = 16.dp)
+                    ) {
+                        Text(
+                            text = name.toString(),
+                            style = MaterialTheme.typography.subtitle1
+                        )
+                        Text(
+                            text = dosage.toString(),
+                            style = MaterialTheme.typography.subtitle2
+                        )
+                    }
+                    Text(
+                        text = formattedDateTime,
+                        modifier = Modifier
+                            .padding(start = 16.dp)
+                            .weight(1f)
+                    )
+                    IconButton(
+                        onClick = {
+                            // val medications_info = jsonObject1.getJSONArray("medication_info")
+                            // //open a popup window with the information for the medication in the row
+                            // for (i in 0 until medications_info.length()) {
+                            //     //get the medication object
+                            //     val medication_info = medications_info.getJSONObject(i)
+                            //     //get the medication name
+                            //     val medication_name = medication_info.getString("name")
+                            //     if (medication_name == name) {
+                            //         //get the medication general_info
+                            //         val general_info = medication_info.getString("general_info")
+                            //         //get the medication when_to_take
+                            //         val when_to_take = medication_info.getString("when_to_take")
+                            //         //get the medication side_effects
+                            //         val side_effects = medication_info.getString("side_effects")
+                            //         //show popup
+                            //         AlertDialog(
+                            //             onDismissRequest = { /*TODO*/ },
+                            //             title = { Text("Medication Info") },
+                            //             text = { Text("General Info: $general_info \n\nWhen to take: $when_to_take \n\nSide Effects: $side_effects") },
+                            //             confirmButton = {
+                            //                 Button(onClick = { /*TODO*/ }) {
+                            //                     Text("OK")
+                            //                 }
+                            //             }
+                            //         )
+                            //         break
+                            //     }
+                            // }
+                        }
+                    ) {
+                        Icon(
+                            imageVector = Icons.Outlined.Info,
+                            contentDescription = "Info"
+                        )
+                    }
+                }
             }
         }
     }
 }
+
+
 
 
 @Preview(showBackground = true)
