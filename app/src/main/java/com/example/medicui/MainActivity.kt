@@ -16,10 +16,72 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.example.medicui.ui.theme.MedicUITheme
+import java.time.LocalDateTime
+import org.json.JSONObject
+import java.time.Instant
+import java.time.Duration
+
+//global array to store the list items, each item will be a dictionary
+var rows = mutableListOf<MutableMap<String, String>>()
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+        // Get a reference to the AssetManager
+        val assetsManager = applicationContext.assets
+
+        // Open the JSON file and read its contents
+        val json = try {
+            assetsManager.open("input.json").bufferedReader().use { it.readText() }
+        }
+        catch (e: Exception) {
+            e.printStackTrace()
+            ""
+        }
+
+        // Parse the JSON data using a JSON parsing library of your choice
+        // For example, using org.json
+        val jsonObject = JSONObject(json)
+
+        //iterate over the JSON object and get the values
+        val medications = jsonObject.getJSONArray("medication")
+        //iterate over the medications array
+        for (i in 0 until medications.length()) {
+            //get the medication object
+            val medication = medications.getJSONObject(i)
+            //get the medication name
+            val name = medication.getString("name")
+            //get the medication dosage
+            val dosage = medication.getString("dosage")
+            //get the medication frequency
+            val frequency = medication.getString("frequency")
+            //parse the start_time to a LocalDateTime object
+            var startTime = Instant.parse(medication.getString("start_time"))
+
+            //get the medication time which is an integer
+            val times = medication.getInt("times")
+            //iterate times times
+            for (j in 0 until times) {
+                //create a dictionary to store the values
+                val row = mutableMapOf<String, String>()
+                //add the values to the dictionary
+                row["name"] = name
+                row["dosage"] = dosage
+                startTime = startTime.plus(Duration.parse(frequency))
+                row["time"] = startTime.toString()
+
+                //add the dictionary to the array
+                rows.add(row)
+            }
+        }
+
+        //sort the array by the time
+        rows.sortBy { it["time"] }
+        //print the array to debug
+        println(rows)
+
+
         setContent {
             MedicUITheme {
                 // A surface container using the 'background' color from the theme
