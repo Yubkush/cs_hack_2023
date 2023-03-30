@@ -1,6 +1,12 @@
 package com.example.medicui
 
+import android.app.NotificationChannel
+import android.app.NotificationManager
+import android.app.PendingIntent
+import android.content.Intent
 import android.os.Bundle
+import android.os.Handler
+import android.os.Looper
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.layout.Arrangement
@@ -13,39 +19,30 @@ import androidx.compose.material.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.core.app.NotificationCompat
+import androidx.core.app.NotificationManagerCompat
 import com.example.medicui.ui.theme.MedicUITheme
+import kotlinx.coroutines.delay
 import org.json.JSONObject
-import java.time.Instant
 import java.time.Duration
-import java.time.LocalDateTime
-import java.time.format.DateTimeFormatter
-
-// val channel = NotificationChannel(
-//     "channel_id",
-//     "channel_name",
-//     NotificationManager.IMPORTANCE_DEFAULT
-// ).apply {
-//     description = "channel_description"
-// }
-// val notificationManager: NotificationManager =
-//     getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
-// notificationManager.createNotificationChannel(channel)
+import java.time.Instant
 
 //global array to store the list items, each item will be a dictionary
 var rows = mutableListOf<MutableMap<String, String>>()
 
 var rows1 = mutableListOf<MutableMap<String, String>>()
 
-//create 
-
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        
+
         // Get a reference to the AssetManager
         val assetsManager = applicationContext.assets
+
+
 
         // Open the JSON file and read its contents
         val json = try {
@@ -99,7 +96,7 @@ class MainActivity : ComponentActivity() {
 
                 //add the dictionary to the array
                 rows.add(row)
-            }       
+            }
         }
 
 
@@ -157,7 +154,7 @@ class MainActivity : ComponentActivity() {
                 //                     id = "side effects",
                 //                     title = "Side Effects",
                 //                     contentDescription = "Go to side effects screen",
-                //                     icon = Icons.Default.Warning  
+                //                     icon = Icons.Default.Warning
                 //                 ),
                 //                 MenuItem(
                 //                     id = "settings",
@@ -184,6 +181,37 @@ class MainActivity : ComponentActivity() {
 }
 @Composable
 fun MedApp() {
+    val context = LocalContext.current
+
+    // Create a notification channel and set its importance level
+    val channel = NotificationChannel(
+        "channel_id",
+        "channel_name",
+        NotificationManager.IMPORTANCE_DEFAULT
+    )
+    val notificationManager = NotificationManagerCompat.from(context)
+    notificationManager.createNotificationChannel(channel)
+
+    // Create a notification builder
+    val builder = NotificationCompat.Builder(context, "channel_id")
+        .setContentTitle("MedTrack")
+        .setContentText("It's time to take your medication!")
+        .setSmallIcon(R.drawable.ic_launcher_foreground)
+
+    // Set the notification's tap action
+    val intent = Intent(context, MainActivity::class.java)
+    val pendingIntent = PendingIntent.getActivity(context, 0, intent, 0)
+    builder.setContentIntent(pendingIntent)
+
+    // Send the notification after 5 seconds
+    Handler(Looper.getMainLooper()).postDelayed({
+        notificationManager.notify(1, builder.build())
+    }, 5000)
+    LaunchedEffect(Unit) {
+        delay(5000) // wait for 5 seconds
+        notificationManager.notify(1, builder.build()) // send the notification
+    }
+
     var expanded by remember { mutableStateOf(false) }
     Column(
         modifier = Modifier
@@ -205,7 +233,7 @@ fun MedApp() {
             val date = split[0]
             //remove the last 4 characters from split[1]
             var hours = split[1].substring(0, split[1].length - 4)
-            
+
             MedCard(
                 name = row["name"]!!,
                 dosage = row["dosage"]!!,
