@@ -1,5 +1,6 @@
 package com.example.medicui
 
+import android.annotation.SuppressLint
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -14,6 +15,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.Info
 import androidx.compose.material.icons.filled.Settings
+import androidx.compose.material.icons.filled.Warning
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -46,6 +48,7 @@ var rows1 = mutableListOf<MutableMap<String, String>>()
 //create 
 
 class MainActivity : ComponentActivity() {
+    @SuppressLint("UnusedMaterialScaffoldPaddingParameter")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
@@ -151,6 +154,12 @@ class MainActivity : ComponentActivity() {
                                     icon = Icons.Default.Home
                                 ),
                                 MenuItem(
+                                    id = "Side Effects",
+                                    title = "Side Effects",
+                                    contentDescription = "Go to side effects screen",
+                                    icon = Icons.Default.Warning
+                                ),
+                                MenuItem(
                                     id = "settings",
                                     title = "Settings",
                                     contentDescription = "Go to settings screen",
@@ -174,7 +183,6 @@ class MainActivity : ComponentActivity() {
                         color = MaterialTheme.colors.background
                     ) {
                         MedApp()
-
                     }
                 }
             }
