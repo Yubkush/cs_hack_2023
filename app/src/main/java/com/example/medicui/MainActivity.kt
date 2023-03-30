@@ -1,8 +1,14 @@
 package com.example.medicui
 
 import android.annotation.SuppressLint
+import android.app.NotificationChannel
+import android.app.NotificationManager
+import android.app.PendingIntent
+import android.content.Intent
 import android.graphics.Color
 import android.os.Bundle
+import android.os.Handler
+import android.os.Looper
 import android.view.Gravity
 import android.widget.LinearLayout
 import android.widget.PopupWindow
@@ -35,21 +41,13 @@ import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.layout.*
-import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Info
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.window.*
+import androidx.core.app.NotificationCompat
+import androidx.core.app.NotificationManagerCompat
+import kotlinx.coroutines.delay
 
-
-// val channel = NotificationChannel(
-//     "channel_id",
-//     "channel_name",
-//     NotificationManager.IMPORTANCE_DEFAULT
-// ).apply {
-//     description = "channel_description"
-// }
-// val notificationManager: NotificationManager =
-//     getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
-// notificationManager.createNotificationChannel(channel)
 
 //global array to store the list items, each item will be a dictionary
 var rows = mutableListOf<MutableMap<String, String>>()
@@ -205,6 +203,36 @@ class MainActivity : ComponentActivity() {
 }
 @Composable
 fun MedApp() {
+    val context = LocalContext.current
+
+    // Create a notification channel and set its importance level
+    val channel = NotificationChannel(
+        "channel_id",
+        "channel_name",
+        NotificationManager.IMPORTANCE_DEFAULT
+    )
+    val notificationManager = NotificationManagerCompat.from(context)
+    notificationManager.createNotificationChannel(channel)
+
+    // Create a notification builder
+    val builder = NotificationCompat.Builder(context, "channel_id")
+        .setContentTitle("MedTrack")
+        .setContentText("It's time to take your medication!")
+        .setSmallIcon(R.drawable.ic_launcher_foreground)
+
+    // Set the notification's tap action
+    val intent = Intent(context, MainActivity::class.java)
+    val pendingIntent = PendingIntent.getActivity(context, 0, intent, 0)
+    builder.setContentIntent(pendingIntent)
+
+    // Send the notification after 5 seconds
+    Handler(Looper.getMainLooper()).postDelayed({
+        notificationManager.notify(1, builder.build())
+    }, 5000)
+    LaunchedEffect(Unit) {
+        delay(5000) // wait for 5 seconds
+        notificationManager.notify(1, builder.build()) // send the notification
+    }
     LazyColumn(
         modifier = Modifier
             .fillMaxWidth()
