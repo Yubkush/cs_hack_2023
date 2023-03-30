@@ -16,7 +16,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.example.medicui.ui.theme.MedicUITheme
-import java.time.LocalDateTime
 import org.json.JSONObject
 import java.time.Instant
 import java.time.Duration
@@ -68,8 +67,8 @@ class MainActivity : ComponentActivity() {
                 //add the values to the dictionary
                 row["name"] = name
                 row["dosage"] = dosage
-                startTime = startTime.plus(Duration.parse(frequency))
                 row["time"] = startTime.toString()
+                startTime = startTime.plus(Duration.parse(frequency))
 
                 //add the dictionary to the array
                 rows.add(row)
@@ -78,8 +77,6 @@ class MainActivity : ComponentActivity() {
 
         //sort the array by the time
         rows.sortBy { it["time"] }
-        //print the array to debug
-        println(rows)
 
 
         setContent {
@@ -98,62 +95,51 @@ class MainActivity : ComponentActivity() {
 
 @Composable
 fun MedApp() {
-    // State variable for email
-    var email by remember { mutableStateOf("") }
-    // State list for medications
-    val medications = remember { mutableStateListOf<String>() }
+    var expanded by remember { mutableStateOf(false) }
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .verticalScroll(rememberScrollState())
+            .padding(16.dp),
+        verticalArrangement = Arrangement.Center,
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        Text(text = "Medications", style = MaterialTheme.typography.h5)
+        Text(text = "Today", style = MaterialTheme.typography.h6)
+        for (row in rows) {
+            //q: what is the !! operator?
+            //a: https://kotlinlang.org/docs/reference/null-safety.html#the--operator
+            
+            MedCard(
+                name = row["name"]!!,
+                dosage = row["dosage"]!!,
+                time = Instant.parse(row["time"]!!).toString(),
+                expanded = expanded
+            )
+        }
+        Button(onClick = { expanded = !expanded }) {
+            Text("Toggle")
+        }
+    }
+}
 
-    // Scaffold for the app layout
-    Scaffold(
-        topBar = {
-            // App bar with title
-            TopAppBar(title = { Text("Medication App") })
-        },
-        content = { padding ->
-            // Content with padding and scrollable
-            Column(
-                modifier = Modifier
-                    .padding(padding)
-                    .verticalScroll(rememberScrollState()),
-                horizontalAlignment = Alignment.CenterHorizontally,
-                verticalArrangement = Arrangement.spacedBy(16.dp)
-            ) {
-                // Text field for email with label and placeholder
-                OutlinedTextField(
-                    value = email,
-                    onValueChange = { email = it },
-                    label = { Text("Email") },
-                    placeholder = { Text("Enter your email") }
-                )
-                // For each medication in the list, display a text field with label and placeholder
-                medications.forEachIndexed { index, medication ->
-                    OutlinedTextField(
-                        value = medication,
-                        onValueChange = { medications[index] = it },
-                        label = { Text("Medication ${index + 1}") },
-                        placeholder = { Text("Enter your medication data") }
-                    )
-                }
-                // Button to add a new medication to the list
-                Button(onClick = {
-                    medications.add("")
-                }) {
-                    Text("Add Medication")
-                }
-                // Button to submit the data
-                Button(onClick = {
-//                    // Get the Python instance
-//                    val python = Python.getInstance()
-//                    // Get the Python module that contains the function you want to call
-//                    val module = python.getModule("your_python_module")
-//                    // Call the function with the email and medications as arguments
-//                    module.callAttr("your_python_function", email.text, medications.map { it.text })
-                }) {
-                    Text("Submit")
-                }
+@Composable
+fun MedCard(name: String, dosage: String, time: String, expanded: Boolean) {
+    Card(
+        modifier = Modifier.padding(4.dp),
+        elevation = 4.dp
+    ) {
+        Column(
+            modifier = Modifier.padding(8.dp)
+        ) {
+            Text(text = name, style = MaterialTheme.typography.h6)
+            Text(text = dosage, style = MaterialTheme.typography.body2)
+            Text(text = time, style = MaterialTheme.typography.body2)
+            if (expanded) {
+                Text(text = "Expanded", style = MaterialTheme.typography.body2)
             }
         }
-    )
+    }
 }
 
 
@@ -164,3 +150,4 @@ fun DefaultPreview() {
         MedApp()
     }
 }
+
