@@ -113,6 +113,7 @@ fun MedApp() {
             MedCard(
                 name = row["name"]!!,
                 dosage = row["dosage"]!!,
+                //format time to a readable format from the ISO 8601 format
                 time = Instant.parse(row["time"]!!).toString(),
                 expanded = expanded
             )

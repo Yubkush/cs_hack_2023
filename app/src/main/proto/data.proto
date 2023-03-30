@@ -1,8 +1,0 @@
-syntax = "proto3";
-message Medicine {
-  string name = 1;
-  string dosage = 2;
-  string start_time = 3;
-  string frequency = 4;
-  int32 times = 5;
-}

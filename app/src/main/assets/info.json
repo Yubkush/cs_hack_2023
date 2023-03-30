@@ -1,0 +1,55 @@
+{
+    "medication_info": [
+      {
+        "name": "Methotrexate",
+        "general_info": {
+          "description": "Methotrexate is a chemotherapy drug used to treat cancer and autoimmune diseases.",
+          "route_of_administration": "Oral, injection, or infusion"
+        },
+        "when_to_take": {
+          "frequency": "Once a week",
+          "time_of_day": "Morning or afternoon",
+          "with_food": "Take with food to reduce stomach upset",
+          "special_instructions": "Do not take more than prescribed, as it can be toxic"
+        },
+        "side_effects": {
+          "common": ["Nausea and vomiting", "Fatigue", "Hair loss", "Mouth sores", "Headache"],
+          "serious": ["Liver damage", "Lung damage", "Infections", "Bone marrow suppression", "Allergic reactions"]
+        }
+      },
+      {
+        "name": "Vincristine",
+        "general_info": {
+          "description": "Vincristine is a chemotherapy drug used to treat various types of cancer.",
+          "route_of_administration": "Injection or infusion"
+        },
+        "when_to_take": {
+          "frequency": "Once a week",
+          "time_of_day": "No specific time",
+          "with_food": "No food or drink for 1 hour before and after administration",
+          "special_instructions": "Do not take more than prescribed, as it can be toxic"
+        },
+        "side_effects": {
+          "common": ["Constipation", "Nausea and vomiting", "Hair loss", "Muscle weakness", "Fatigue"],
+          "serious": ["Nerve damage", "Allergic reactions", "Decreased production of blood cells", "Liver damage", "Lung damage"]
+        }
+      },
+      {
+        "name": "Prednisone",
+        "general_info": {
+          "description": "Prednisone is a corticosteroid drug used to treat various conditions, including inflammation and autoimmune diseases.",
+          "route_of_administration": "Oral"
+        },
+        "when_to_take": {
+          "frequency": "Once a day",
+          "time_of_day": "Morning",
+          "with_food": "Take with food to reduce stomach upset",
+          "special_instructions": "Do not stop taking suddenly, as it can cause withdrawal symptoms"
+        },
+        "side_effects": {
+          "common": ["Weight gain", "Insomnia", "Mood changes", "Increased appetite", "Acne"],
+          "serious": ["Osteoporosis", "High blood pressure", "Cataracts", "Glaucoma", "Infections"]
+        }
+      }
+    ]
+  }
