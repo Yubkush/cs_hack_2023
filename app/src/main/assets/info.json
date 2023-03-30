@@ -7,7 +7,6 @@
           "route_of_administration": "Oral, injection, or infusion"
         },
         "when_to_take": {
-          "frequency": "Once a week",
           "time_of_day": "Morning or afternoon",
           "with_food": "Take with food to reduce stomach upset",
           "special_instructions": "Do not take more than prescribed, as it can be toxic"
@@ -24,7 +23,6 @@
           "route_of_administration": "Injection or infusion"
         },
         "when_to_take": {
-          "frequency": "Once a week",
           "time_of_day": "No specific time",
           "with_food": "No food or drink for 1 hour before and after administration",
           "special_instructions": "Do not take more than prescribed, as it can be toxic"
@@ -41,7 +39,6 @@
           "route_of_administration": "Oral"
         },
         "when_to_take": {
-          "frequency": "Once a day",
           "time_of_day": "Morning",
           "with_food": "Take with food to reduce stomach upset",
           "special_instructions": "Do not stop taking suddenly, as it can cause withdrawal symptoms"
